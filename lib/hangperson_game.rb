@@ -5,6 +5,8 @@ class HangpersonGame
   attr_accessor :word
   attr_accessor :guesses
   attr_accessor :wrong_guesses
+  attr_reader :word_with_guesses
+  attr_reader :check_win_or_lose
   
   # Get a word from remote "random word" service
 
@@ -13,22 +15,47 @@ class HangpersonGame
   
   def initialize(word)
     @word = word
+    @word_with_guesses = ''
     @guesses = ''
     @wrong_guesses = ''
+    @word.length.times do
+      @word_with_guesses << '-'
+    @check_win_or_lose = :play
+    end
+    
   end
 
   def guess(letters)
-    letters.downcase!
-    letters.each_char do |letter|  
-      unless @guesses.include?(letter) || @wrong_guesses.include?(letter) then  
-        if @word.include? letter then
-          @guesses << letter
+    if letters == nil then
+      raise ArgumentError
+    end
+    if /[^A-Za-z]/ =~ letters || letters.empty? then
+      raise ArgumentError
+    end
+    if check_win_or_lose == :play then
+      letters.downcase!
+      letters.each_char do |letter|  
+        unless @guesses.include?(letter) || @wrong_guesses.include?(letter) then  
+          if @word.include? letter then
+            @guesses << letter
+            i = -1
+            @word.count(letter).times do
+              i = @word.index(letter, i+1)
+              @word_with_guesses[i] = letter;
+            end
+            unless @word_with_guesses.include?('-') then
+              @check_win_or_lose = :win
+            end
+          else
+            @wrong_guesses << letter
+            if @wrong_guesses.length >= 7 then
+              @check_win_or_lose = :lose
+            end
+          end
+          return true
         else
-          @wrong_guesses << letter
+          return false
         end
-        return true
-      else
-        return false
       end
     end
     
