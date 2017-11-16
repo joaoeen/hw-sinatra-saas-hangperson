@@ -41,7 +41,13 @@ class HangpersonApp < Sinatra::Base
     letter = params[:guess].to_s[0]
     ### YOUR CODE HERE ###
     @game.guess(letter)
-    redirect '/show'
+    if @game.check_win_or_lose == :play then
+      redirect '/show'
+    elsif @game.check_win_or_lose == :win
+      redirect '/win'
+    elsif @game.check_win_or_lose == :lose
+      redirect '/lose'
+    end
   end
   
   # Everytime a guess is made, we should eventually end up at this route.
